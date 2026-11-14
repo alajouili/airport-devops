@@ -1,2 +1,4 @@
 # Sorties de compilation Maven
 backend/target/
+# Secrets locaux
+.env
