@@ -1,0 +1,71 @@
+.toolbar-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.counters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.counters strong {
+  font-size: 20px;
+}
+
+.gate-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.table tbody tr.selected {
+  background: var(--color-primary-soft);
+}
+
+.side {
+  position: sticky;
+  top: 72px;
+}
+
+.step-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 18px 0 8px;
+}
+
+.inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inline-actions select {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.hint {
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 1000px) {
+  .gate-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
+  }
+}

@@ -1,0 +1,37 @@
+<dialog
+  #dialog
+  class="confirm"
+  aria-labelledby="confirm-title"
+  aria-describedby="confirm-message"
+  (cancel)="onCancel($event)"
+  (click)="onBackdropClick($event)"
+>
+  @if (confirmService.pending(); as request) {
+    <div class="panel">
+      <div class="head">
+        <span class="symbol" [class.danger]="request.danger">
+          <app-icon [name]="request.danger ? 'triangle-alert' : 'info'" [size]="20" />
+        </span>
+        <div>
+          <h2 id="confirm-title">{{ request.title }}</h2>
+          <p id="confirm-message">{{ request.message }}</p>
+        </div>
+      </div>
+      <div class="actions">
+        <!-- autofocus on the safe choice: Enter does not delete by accident -->
+        <button type="button" class="btn btn-secondary" autofocus (click)="confirmService.answer(false)">
+          {{ request.cancelLabel ?? 'Retour' }}
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [class.btn-danger]="request.danger"
+          [class.btn-primary]="!request.danger"
+          (click)="confirmService.answer(true)"
+        >
+          {{ request.confirmLabel }}
+        </button>
+      </div>
+    </div>
+  }
+</dialog>

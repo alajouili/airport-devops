@@ -1,0 +1,115 @@
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0 0 16px;
+  list-style: none;
+  counter-reset: step;
+}
+
+.steps li {
+  counter-increment: step;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-weight: 500;
+}
+
+.steps li::before {
+  content: counter(step);
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #eef1f4;
+  font-size: 12px;
+}
+
+.steps li.done {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.steps li.done::before {
+  content: "✓";
+  background: var(--color-success);
+  color: #fff;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.table.compact {
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.ticket {
+  border-left: 5px solid var(--color-primary);
+  margin-bottom: 16px;
+}
+
+.ticket-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.ticket-header p {
+  margin: 0;
+}
+
+.ticket-header h2 {
+  font-size: 20px;
+  letter-spacing: 0.04em;
+}
+
+.ticket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 16px 0 4px;
+}
+
+.inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.inline-form select,
+.inline-form input {
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.inline-form input {
+  width: 140px;
+}
+
+.stars {
+  color: #e0a100;
+  font-size: 20px;
+  margin: 0;
+}
+
+.hint {
+  font-size: 12px;
+  margin: 0 0 12px;
+}

@@ -1,0 +1,51 @@
+<app-page-header title="Réclamations" subtitle="Suivi et traitement des réclamations des passagers">
+  <a routerLink="nouvelle" class="btn btn-primary">+ Nouvelle réclamation</a>
+</app-page-header>
+
+<section class="card">
+  <div class="toolbar">
+    <div class="form-field">
+      <select [(ngModel)]="statut" (ngModelChange)="load()" aria-label="Statut">
+        <option [ngValue]="null">Tous les statuts</option>
+        @for (s of statuts; track s) {
+          <option [ngValue]="s">{{ statutLabels[s] }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-field">
+      <select [(ngModel)]="categorie" (ngModelChange)="load()" aria-label="Catégorie">
+        <option [ngValue]="null">Toutes les catégories</option>
+        @for (c of categories; track c) {
+          <option [ngValue]="c">{{ categorieLabels[c] }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="empty-state">Chargement…</p>
+  } @else if (reclamations().length === 0) {
+    <p class="empty-state">Aucune réclamation.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr><th>Référence</th><th>Passager</th><th>Catégorie</th><th>Sujet</th><th>Créée le</th><th>Statut</th><th class="actions"></th></tr>
+        </thead>
+        <tbody>
+          @for (r of reclamations(); track r.id) {
+            <tr>
+              <td><strong>{{ r.reference }}</strong></td>
+              <td>{{ r.passagerNom }}</td>
+              <td>{{ categorieLabels[r.categorie] }}</td>
+              <td>{{ r.sujet }}</td>
+              <td>{{ r.dateCreation | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td><span class="badge" [class]="statutBadges[r.statut]">{{ statutLabels[r.statut] }}</span></td>
+              <td class="actions"><a class="btn btn-secondary btn-sm" [routerLink]="[r.id]">Traiter</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -1,0 +1,55 @@
+<app-page-header title="Vols et horaires" subtitle="Départs à venir depuis l'aéroport, mis à jour à chaque visite" />
+
+<div class="filters card">
+  <label class="search">
+    <app-icon name="search" [size]="18" />
+    <span class="sr-only">Rechercher un vol</span>
+    <input
+      type="search"
+      [ngModel]="recherche()"
+      (ngModelChange)="recherche.set($event)"
+      placeholder="Destination, numéro de vol ou compagnie"
+    />
+  </label>
+
+  @if (statutsPresents().length > 1) {
+    <div class="chips" role="group" aria-label="Filtrer par statut">
+      <button type="button" class="chip" [attr.aria-pressed]="statut() === null" (click)="statut.set(null)">Tous</button>
+      @for (s of statutsPresents(); track s) {
+        <button type="button" class="chip" [attr.aria-pressed]="statut() === s" (click)="statut.set(s)">
+          {{ statutLabels[s] }}
+        </button>
+      }
+    </div>
+  }
+</div>
+
+@switch (state()) {
+  @case ('loading') {
+    <div class="card"><app-state-message kind="loading" title="Chargement des vols…" /></div>
+  }
+  @case ('error') {
+    <div class="card">
+      <app-state-message kind="error" title="Impossible de charger les vols" message="L'API des vols ne répond pas. Vérifiez que le backend est démarré.">
+        <button type="button" class="btn btn-secondary btn-sm" (click)="load()">Réessayer</button>
+      </app-state-message>
+    </div>
+  }
+  @default {
+    @if (vols().length === 0) {
+      <div class="card"><app-state-message kind="empty" icon="plane" title="Aucun départ programmé" /></div>
+    } @else if (jours().length === 0) {
+      <div class="card">
+        <app-state-message kind="empty" icon="search" title="Aucun vol ne correspond" message="Essayez une autre destination ou retirez le filtre.">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="effacer()">Effacer les filtres</button>
+        </app-state-message>
+      </div>
+    } @else {
+      <p class="count muted" aria-live="polite">{{ volsFiltres().length }} vol(s) sur {{ vols().length }}</p>
+      @for (groupe of jours(); track groupe.jour) {
+        <h2 class="section-title day">{{ groupe.jour | date: 'EEEE d MMMM' }}</h2>
+        <app-departures-board [vols]="groupe.vols" />
+      }
+    }
+  }
+}

@@ -1,0 +1,86 @@
+<app-page-header title="Tableau de bord" [subtitle]="'Activité passagers et services, ' + (today | date: 'EEEE d MMMM yyyy')" />
+
+@if (backendDown()) {
+  <div class="alert alert-danger backend-alert" role="alert">
+    <app-icon name="server" [size]="20" />
+    <div>
+      <p><strong>Le backend ne répond pas.</strong></p>
+      <p>Démarrez Spring Boot dans le dossier <code>backend</code>, vérifiez que PostgreSQL est lancé, puis réessayez.</p>
+    </div>
+    <button type="button" class="btn btn-secondary btn-sm" (click)="load()">
+      <app-icon name="refresh-cw" [size]="16" /> Réessayer
+    </button>
+  </div>
+}
+
+<!-- ===== Work to do ===== -->
+<section aria-labelledby="a-traiter">
+  <h2 id="a-traiter" class="section-title first">À traiter</h2>
+  <div class="counters">
+    @for (counter of counters; track counter.label) {
+      <a class="counter card" [routerLink]="counter.route">
+        <span class="counter-icon"><app-icon [name]="counter.icon" [size]="20" /></span>
+        <span class="counter-text">
+          <span class="counter-value">
+            @switch (counter.value()) {
+              @case (null) { <span class="spinner" aria-label="Chargement"></span> }
+              @case (-1) { — }
+              @default { {{ counter.value() }} }
+            }
+          </span>
+          <span class="counter-label">{{ counter.label }}</span>
+          <span class="counter-hint">{{ counter.hint }}</span>
+        </span>
+        <app-icon name="chevron-right" [size]="18" class="counter-arrow" />
+      </a>
+    }
+  </div>
+</section>
+
+<!-- ===== Next departures ===== -->
+<section aria-labelledby="prochains-departs">
+  <div class="section-head">
+    <h2 id="prochains-departs" class="section-title">Prochains départs</h2>
+    <a routerLink="/passengers/vols" class="btn btn-ghost btn-sm">Tous les vols et horaires</a>
+  </div>
+
+  @switch (volsState()) {
+    @case ('loading') {
+      <div class="card"><app-state-message kind="loading" title="Chargement des vols…" /></div>
+    }
+    @case ('error') {
+      <div class="card">
+        <app-state-message kind="error" title="Impossible de charger les vols" message="L'API des vols ne répond pas.">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="load()">Réessayer</button>
+        </app-state-message>
+      </div>
+    }
+    @default {
+      @if (prochainsVols().length === 0) {
+        <div class="card"><app-state-message kind="empty" icon="plane" title="Aucun départ programmé" /></div>
+      } @else {
+        <app-departures-board [vols]="prochainsVols()" [showDate]="true" />
+        <p class="source muted">{{ vols().length }} vols à venir au total. Données de l'API des vols (module de l'étudiant A).</p>
+      }
+    }
+  }
+</section>
+
+<!-- ===== Modules ===== -->
+<section aria-labelledby="modules">
+  <h2 id="modules" class="section-title">Mes modules</h2>
+  <ul class="modules card">
+    @for (module of modules; track module.title) {
+      <li>
+        <span class="module-icon" [class.ready]="module.route"><app-icon [name]="module.icon" [size]="18" /></span>
+        <span class="module-title">{{ module.title }}</span>
+        <span class="muted module-tables">{{ module.tables }} tables</span>
+        @if (module.route) {
+          <a class="btn btn-secondary btn-sm" [routerLink]="module.route">Ouvrir</a>
+        } @else {
+          <span class="badge badge-neutral">Prévu</span>
+        }
+      </li>
+    }
+  </ul>
+</section>

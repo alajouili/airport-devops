@@ -1,0 +1,44 @@
+<app-page-header title="Avis des passagers" subtitle="Donnés après l'embarquement, un avis par voyage" />
+
+@if (loading()) {
+  <p class="empty-state">Chargement…</p>
+} @else if (avis().length === 0) {
+  <p class="empty-state">Aucun avis pour l'instant. Un avis peut être donné après l'embarquement du passager.</p>
+} @else {
+  <section class="card stats">
+    <div class="average">
+      <strong>{{ moyenne() | number: '1.1-1' }}</strong>
+      <span class="stars">{{ moyenne() | stars }}</span>
+      <span class="muted">{{ avis().length }} avis</span>
+    </div>
+    <div class="bars">
+      @for (ligne of repartition(); track ligne.note) {
+        <button type="button" class="bar-row" [class.selected]="filtreNote() === ligne.note" (click)="filtrer(ligne.note)">
+          <span>{{ ligne.note }} ★</span>
+          <span class="bar"><span [style.width.%]="ligne.pourcentage"></span></span>
+          <span class="muted">{{ ligne.nombre }}</span>
+        </button>
+      }
+    </div>
+  </section>
+
+  @if (filtreNote()) {
+    <p class="muted">Filtre : {{ filtreNote() }} étoile(s) — cliquez à nouveau sur la barre pour l'enlever.</p>
+  }
+
+  <div class="review-list">
+    @for (a of avisAffiches(); track a.id) {
+      <article class="card review">
+        <div class="review-head">
+          <span class="stars">{{ a.note | stars }}</span>
+          <span class="muted">{{ a.dateAvis | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <p>{{ a.commentaire ?? 'Pas de commentaire.' }}</p>
+        <p class="muted">
+          {{ a.passagerNom }} · {{ a.compagnieNom }} {{ a.numeroVol }} vers {{ a.aeroportArrivee }} ·
+          <a [routerLink]="['/passengers/reservations', a.reservationId]">{{ a.reservationReference }}</a>
+        </p>
+      </article>
+    }
+  </div>
+}

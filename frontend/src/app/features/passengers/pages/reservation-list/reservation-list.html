@@ -1,0 +1,61 @@
+<app-page-header title="Réservations" subtitle="Réservations de billets sur les vols de l'aéroport">
+  <a routerLink="nouvelle" class="btn btn-primary">+ Nouvelle réservation</a>
+</app-page-header>
+
+<section class="card">
+  <div class="toolbar">
+    <div class="form-field">
+      <select [(ngModel)]="statut" (ngModelChange)="load()" aria-label="Filtrer par statut">
+        <option [ngValue]="null">Tous les statuts</option>
+        @for (s of statuts; track s) {
+          <option [ngValue]="s">{{ statutLabels[s] }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-field">
+      <select [(ngModel)]="volId" (ngModelChange)="load()" aria-label="Filtrer par vol">
+        <option [ngValue]="null">Tous les vols</option>
+        @for (vol of vols(); track vol.id) {
+          <option [ngValue]="vol.id">{{ vol.numeroVol }} — {{ vol.aeroportArrivee }} ({{ vol.dateHeureDepart | date: 'dd/MM HH:mm' }})</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="empty-state">Chargement…</p>
+  } @else if (reservations().length === 0) {
+    <p class="empty-state">Aucune réservation.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Référence</th>
+            <th>Passager</th>
+            <th>Vol</th>
+            <th>Départ</th>
+            <th>Classe</th>
+            <th>Montant</th>
+            <th>Statut</th>
+            <th class="actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of reservations(); track r.id) {
+            <tr>
+              <td><strong>{{ r.reference }}</strong></td>
+              <td>{{ r.passagerNom }}</td>
+              <td>{{ r.numeroVol }} → {{ r.aeroportArrivee }}</td>
+              <td>{{ r.dateHeureDepart | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td>{{ classeLabels[r.classe] }}</td>
+              <td>{{ r.montant | currency: 'TND' : 'symbol' : '1.3-3' }}</td>
+              <td><span class="badge" [class]="statutBadges[r.statut]">{{ statutLabels[r.statut] }}</span></td>
+              <td class="actions"><a class="btn btn-secondary btn-sm" [routerLink]="[r.id]">Ouvrir</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

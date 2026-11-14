@@ -1,0 +1,59 @@
+<app-page-header title="Assistance aux passagers" subtitle="Demandes à préparer, triées par heure de départ" />
+
+<section class="card">
+  <div class="toolbar">
+    <div class="form-field">
+      <select [(ngModel)]="statut" (ngModelChange)="load()" aria-label="Statut">
+        <option [ngValue]="null">Tous les statuts</option>
+        @for (s of statuts; track s) {
+          <option [ngValue]="s">{{ statutLabels[s] }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-field">
+      <select [(ngModel)]="volId" (ngModelChange)="load()" aria-label="Vol">
+        <option [ngValue]="null">Tous les vols</option>
+        @for (v of vols(); track v.id) {
+          <option [ngValue]="v.id">{{ v.numeroVol }} — {{ v.aeroportArrivee }} ({{ v.dateHeureDepart | date: 'dd/MM HH:mm' }})</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <p class="empty-state">Chargement…</p>
+  } @else if (assistances().length === 0) {
+    <p class="empty-state">Aucune demande d'assistance.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr><th>Départ</th><th>Vol</th><th>Passager</th><th>Besoin</th><th>Précisions</th><th>Statut</th><th class="actions"></th></tr>
+        </thead>
+        <tbody>
+          @for (a of assistances(); track a.id) {
+            <tr>
+              <td>{{ a.dateHeureDepart | date: 'dd/MM HH:mm' }}</td>
+              <td>{{ a.numeroVol }}</td>
+              <td><a [routerLink]="['/passengers/reservations', a.reservationId]">{{ a.passagerNom }}</a></td>
+              <td><strong>{{ typeLabels[a.typeAssistance] }}</strong></td>
+              <td>{{ a.description ?? '—' }}</td>
+              <td><span class="badge" [class]="statutBadges[a.statut]">{{ statutLabels[a.statut] }}</span></td>
+              <td class="actions">
+                @for (s of transitions[a.statut]; track s) {
+                  <button
+                    type="button"
+                    class="btn btn-sm"
+                    [class.btn-primary]="s !== 'ANNULEE'"
+                    [class.btn-secondary]="s === 'ANNULEE'"
+                    (click)="changer(a, s)"
+                  >{{ actionLabels[s] }}</button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

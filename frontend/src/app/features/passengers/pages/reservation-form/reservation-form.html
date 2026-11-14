@@ -1,0 +1,59 @@
+<app-page-header title="Nouvelle réservation" subtitle="Choisissez le passager, le vol et la classe" />
+
+<form class="card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="form-grid">
+    <div class="form-field">
+      <label for="passager">Passager *</label>
+      <select id="passager" formControlName="passagerId">
+        <option [ngValue]="null" disabled>Choisir un passager</option>
+        @for (p of passagers(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nom }} {{ p.prenom }} — {{ p.email }}</option>
+        }
+      </select>
+      @if (form.controls.passagerId.invalid && form.controls.passagerId.touched) {
+        <span class="field-error">Choisissez un passager.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="vol">Vol *</label>
+      <select id="vol" formControlName="volId">
+        <option [ngValue]="null" disabled>Choisir un vol</option>
+        @for (v of vols(); track v.id) {
+          <option [ngValue]="v.id">
+            {{ v.numeroVol }} · {{ v.aeroportArrivee }} · {{ v.dateHeureDepart | date: 'EEE dd/MM HH:mm' }}
+          </option>
+        }
+      </select>
+      @if (form.controls.volId.invalid && form.controls.volId.touched) {
+        <span class="field-error">Choisissez un vol.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="classe">Classe *</label>
+      <select id="classe" formControlName="classe">
+        @for (c of classes; track c) {
+          <option [ngValue]="c">{{ classeLabels[c] }} — {{ prix[c] | currency: 'TND' : 'symbol' : '1.3-3' }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (volChoisi(); as vol) {
+    <div class="summary">
+      <strong>{{ vol.compagnieNom }} {{ vol.numeroVol }}</strong> :
+      {{ vol.aeroportDepart }} → {{ vol.aeroportArrivee }},
+      départ le {{ vol.dateHeureDepart | date: 'EEEE dd MMMM à HH:mm' }}.
+      Tarif indicatif : <strong>{{ prixIndicatif() | currency: 'TND' : 'symbol' : '1.3-3' }}</strong>
+      <span class="muted">(le montant définitif est calculé par le serveur)</span>
+    </div>
+  }
+
+  <div class="form-actions">
+    <a routerLink="/passengers/reservations" class="btn btn-secondary">Annuler</a>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">
+      {{ saving() ? 'Création…' : 'Créer la réservation' }}
+    </button>
+  </div>
+</form>

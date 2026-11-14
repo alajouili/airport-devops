@@ -1,0 +1,58 @@
+<app-page-header
+  title="Bagages"
+  subtitle="Suivi des bagages enregistrés. Les bagages sont ajoutés depuis la page d'une réservation, après l'enregistrement."
+/>
+
+<section class="card">
+  <form class="toolbar" (ngSubmit)="load()">
+    <div class="form-field">
+      <input type="search" name="etiquette" [(ngModel)]="etiquette" placeholder="N° d'étiquette (ex. TU12)" aria-label="Étiquette" />
+    </div>
+    <div class="form-field">
+      <select name="statut" [(ngModel)]="statut" (ngModelChange)="load()" aria-label="Statut">
+        <option [ngValue]="null">Tous les statuts</option>
+        @for (s of statuts; track s) {
+          <option [ngValue]="s">{{ statutLabels[s] }}</option>
+        }
+      </select>
+    </div>
+    <button type="submit" class="btn btn-secondary">Rechercher</button>
+  </form>
+
+  @if (loading()) {
+    <p class="empty-state">Chargement…</p>
+  } @else if (bagages().length === 0) {
+    <p class="empty-state">Aucun bagage.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Étiquette</th>
+            <th>Passager</th>
+            <th>Vol</th>
+            <th>Type</th>
+            <th>Poids</th>
+            <th>Enregistré le</th>
+            <th>Statut</th>
+            <th class="actions"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (b of bagages(); track b.id) {
+            <tr>
+              <td><strong>{{ b.numeroEtiquette }}</strong></td>
+              <td>{{ b.passagerNom }}</td>
+              <td>{{ b.numeroVol }} → {{ b.aeroportArrivee }}</td>
+              <td>{{ b.type === 'SOUTE' ? 'Soute' : 'Cabine' }}</td>
+              <td>{{ b.poidsKg }} kg</td>
+              <td>{{ b.dateCreation | date: 'dd/MM HH:mm' }}</td>
+              <td><span class="badge" [class]="statutBadges[b.statut]">{{ statutLabels[b.statut] }}</span></td>
+              <td class="actions"><a class="btn btn-secondary btn-sm" [routerLink]="[b.id]">Suivi</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

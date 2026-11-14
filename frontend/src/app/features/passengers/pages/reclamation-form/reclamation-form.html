@@ -1,0 +1,71 @@
+<app-page-header title="Nouvelle réclamation" subtitle="La réservation et le bagage sont facultatifs, sauf pour une réclamation bagage" />
+
+<form class="card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+  <div class="form-grid">
+    <div class="form-field">
+      <label for="passager">Passager *</label>
+      <select id="passager" formControlName="passagerId">
+        <option [ngValue]="null" disabled>Choisir un passager</option>
+        @for (p of passagers(); track p.id) {
+          <option [ngValue]="p.id">{{ p.nom }} {{ p.prenom }}</option>
+        }
+      </select>
+      @if (form.controls.passagerId.invalid && form.controls.passagerId.touched) {
+        <span class="field-error">Choisissez un passager.</span>
+      }
+    </div>
+
+    <div class="form-field">
+      <label for="reservation">Réservation concernée</label>
+      <select id="reservation" formControlName="reservationId">
+        <option [ngValue]="null">Aucune</option>
+        @for (r of reservations(); track r.id) {
+          <option [ngValue]="r.id">{{ r.reference }} — {{ r.numeroVol }} {{ r.aeroportArrivee }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="bagage">Bagage concerné</label>
+      <select id="bagage" formControlName="bagageId">
+        <option [ngValue]="null">Aucun</option>
+        @for (b of bagages(); track b.id) {
+          <option [ngValue]="b.id">{{ b.numeroEtiquette }} ({{ b.poidsKg }} kg)</option>
+        }
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label for="categorie">Catégorie *</label>
+      <select id="categorie" formControlName="categorie">
+        @for (c of categories; track c) {
+          <option [ngValue]="c">{{ categorieLabels[c] }}</option>
+        }
+      </select>
+      @if (form.controls.categorie.value === 'BAGAGE' && !form.controls.bagageId.value) {
+        <span class="field-error">Une réclamation bagage doit indiquer le bagage.</span>
+      }
+    </div>
+  </div>
+
+  <div class="form-field" style="margin-top: 16px">
+    <label for="sujet">Sujet *</label>
+    <input id="sujet" formControlName="sujet" maxlength="150" />
+    @if (form.controls.sujet.invalid && form.controls.sujet.touched) {
+      <span class="field-error">Le sujet est obligatoire.</span>
+    }
+  </div>
+
+  <div class="form-field" style="margin-top: 16px">
+    <label for="description">Description *</label>
+    <textarea id="description" formControlName="description" rows="5" maxlength="2000"></textarea>
+    @if (form.controls.description.invalid && form.controls.description.touched) {
+      <span class="field-error">La description est obligatoire.</span>
+    }
+  </div>
+
+  <div class="form-actions">
+    <a routerLink="/passengers/reclamations" class="btn btn-secondary">Annuler</a>
+    <button type="submit" class="btn btn-primary" [disabled]="saving()">Enregistrer</button>
+  </div>
+</form>

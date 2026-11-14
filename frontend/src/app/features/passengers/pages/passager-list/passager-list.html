@@ -1,0 +1,60 @@
+<app-page-header title="Passagers" subtitle="Voyageurs enregistrés dans le système">
+  <a routerLink="nouveau" class="btn btn-primary">+ Nouveau passager</a>
+</app-page-header>
+
+<section class="card">
+  <!-- (ngSubmit) runs the search with the Enter key too -->
+  <form class="toolbar" (ngSubmit)="load()">
+    <div class="form-field" style="flex: 1; min-width: 220px">
+      <input
+        type="search"
+        name="recherche"
+        [(ngModel)]="recherche"
+        placeholder="Rechercher par nom, prénom, email ou passeport"
+        aria-label="Rechercher"
+      />
+    </div>
+    <button type="submit" class="btn btn-secondary">Rechercher</button>
+  </form>
+
+  @if (loading()) {
+    <p class="empty-state">Chargement…</p>
+  } @else if (passagers().length === 0) {
+    <p class="empty-state">Aucun passager trouvé.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Téléphone</th>
+            <th>Nationalité</th>
+            <th>Passeport</th>
+            <th class="actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (passager of passagers(); track passager.id) {
+            <tr>
+              <td><strong>{{ passager.nom }}</strong> {{ passager.prenom }}</td>
+              <td>{{ passager.email }}</td>
+              <td>{{ passager.telephone ?? '—' }}</td>
+              <td>{{ passager.nationalite ?? '—' }}</td>
+              <td>{{ passager.numeroPasseport ?? '—' }}</td>
+              <td class="actions">
+                <a
+                  class="btn btn-secondary btn-sm"
+                  routerLink="reservations/nouvelle"
+                  [queryParams]="{ passagerId: passager.id }"
+                >Réserver</a>
+                <a class="btn btn-secondary btn-sm" [routerLink]="[passager.id, 'modifier']">Modifier</a>
+                <button type="button" class="btn btn-danger btn-sm" (click)="delete(passager)">Supprimer</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

@@ -1,0 +1,152 @@
+.backend-alert {
+  align-items: center;
+  margin-bottom: var(--space-5);
+}
+
+.backend-alert > div {
+  flex: 1;
+}
+
+.section-title.first {
+  margin-top: 0;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* ---------- Counters ---------- */
+.counters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-4);
+}
+
+.counter {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease;
+}
+
+.counter:hover {
+  border-color: var(--sky-500);
+  color: inherit;
+}
+
+.counter-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: var(--sky-50);
+  color: var(--navy-700);
+}
+
+.counter-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.counter-value {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--navy-900);
+  font-variant-numeric: tabular-nums;
+}
+
+.counter-value .spinner {
+  width: 18px;
+  height: 18px;
+  color: var(--ink-subtle);
+}
+
+.counter-label {
+  font-weight: 600;
+}
+
+.counter-hint {
+  font-size: var(--text-xs);
+  color: var(--ink-muted);
+}
+
+.counter-arrow {
+  align-self: center;
+  color: var(--ink-subtle);
+}
+
+.counter:hover .counter-arrow {
+  color: var(--sky-500);
+}
+
+.source {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+}
+
+/* ---------- Modules ---------- */
+.modules {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.modules li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5);
+  border-bottom: 1px solid var(--line);
+}
+
+.modules li:last-child {
+  border-bottom: none;
+}
+
+.module-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--neutral-soft);
+  color: var(--ink-muted);
+}
+
+.module-icon.ready {
+  background: var(--sky-50);
+  color: var(--navy-700);
+}
+
+.module-title {
+  flex: 1;
+  font-weight: 500;
+}
+
+.module-tables {
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 560px) {
+  .module-tables {
+    display: none;
+  }
+
+  .modules li {
+    padding: var(--space-3) var(--space-4);
+  }
+}

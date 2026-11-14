@@ -1,0 +1,258 @@
+@if (detail(); as d) {
+  <app-page-header
+    [title]="'Réservation ' + d.reservation.reference"
+    [subtitle]="'Créée le ' + (d.reservation.dateReservation | date: 'dd/MM/yyyy à HH:mm')"
+  >
+    <a routerLink="/passengers/reservations" class="btn btn-secondary">← Retour</a>
+    <a
+      class="btn btn-secondary"
+      routerLink="/passengers/reclamations/nouvelle"
+      [queryParams]="{ passagerId: d.reservation.passagerId, reservationId: d.reservation.id }"
+    >Réclamation</a>
+    @if (canCancel(d)) {
+      <button type="button" class="btn btn-danger" [disabled]="busy()" (click)="annuler()">Annuler la réservation</button>
+    }
+  </app-page-header>
+
+  <!-- ===== Progress of the journey ===== -->
+  <ol class="steps">
+    <li [class.done]="d.reservation.statut !== 'EN_ATTENTE_PAIEMENT'">Paiement</li>
+    <li [class.done]="!!d.billet">Billet</li>
+    <li [class.done]="!!d.billet?.siegeNumero">Siège</li>
+    <li [class.done]="!!d.billet?.enregistrementId">Enregistrement</li>
+    <li [class.done]="d.bagages.length > 0">Bagages</li>
+  </ol>
+
+  <div class="detail-grid">
+    <!-- ===== Reservation ===== -->
+    <section class="card">
+      <h2 class="card-title">Voyage</h2>
+      <dl class="info-list">
+        <dt>Statut</dt>
+        <dd><span class="badge" [class]="statutBadges[d.reservation.statut]">{{ statutLabels[d.reservation.statut] }}</span></dd>
+        <dt>Passager</dt>
+        <dd>{{ d.reservation.passagerNom }}</dd>
+        <dt>Vol</dt>
+        <dd>{{ d.reservation.compagnieNom }} {{ d.reservation.numeroVol }}</dd>
+        <dt>Trajet</dt>
+        <dd>{{ d.reservation.aeroportDepart }} → {{ d.reservation.aeroportArrivee }}</dd>
+        <dt>Départ</dt>
+        <dd>{{ d.reservation.dateHeureDepart | date: 'EEEE dd MMMM yyyy, HH:mm' }}</dd>
+        <dt>Classe</dt>
+        <dd>{{ classeLabels[d.reservation.classe] }}</dd>
+        <dt>Montant</dt>
+        <dd>{{ d.reservation.montant | currency: 'TND' : 'symbol' : '1.3-3' }}</dd>
+        @if (d.reservation.dateAnnulation) {
+          <dt>Annulée le</dt>
+          <dd>{{ d.reservation.dateAnnulation | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        }
+      </dl>
+    </section>
+
+    <!-- ===== Payment ===== -->
+    <section class="card">
+      <h2 class="card-title">Paiement</h2>
+
+      @if (d.reservation.statut === 'EN_ATTENTE_PAIEMENT') {
+        <p class="muted">Paiement <strong>simulé</strong> : aucune donnée bancaire n'est saisie ni enregistrée.</p>
+        <div class="form-field">
+          <label for="mode">Mode de paiement</label>
+          <select id="mode" [(ngModel)]="modePaiement">
+            @for (m of modes; track m) {
+              <option [ngValue]="m">{{ modeLabels[m] }}</option>
+            }
+          </select>
+        </div>
+        <label class="checkbox">
+          <input type="checkbox" [(ngModel)]="simulerRefus" />
+          Simuler un refus de la banque (démonstration)
+        </label>
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" [disabled]="busy()" (click)="payer()">
+            Payer {{ d.reservation.montant | currency: 'TND' : 'symbol' : '1.3-3' }}
+          </button>
+        </div>
+      }
+
+      @if (d.paiements.length > 0) {
+        <table class="table compact">
+          <thead>
+            <tr><th>Date</th><th>Mode</th><th>Statut</th><th>Transaction</th></tr>
+          </thead>
+          <tbody>
+            @for (p of d.paiements; track p.id) {
+              <tr>
+                <td>{{ p.datePaiement | date: 'dd/MM HH:mm:ss' }}</td>
+                <td>{{ modeLabels[p.mode] }}</td>
+                <td>
+                  <span class="badge" [class]="p.statut === 'ACCEPTE' ? 'badge-success' : 'badge-danger'">
+                    {{ p.statut === 'ACCEPTE' ? 'Accepté' : 'Refusé' }}
+                  </span>
+                </td>
+                <td><code>{{ p.referenceTransaction }}</code></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else if (d.reservation.statut !== 'EN_ATTENTE_PAIEMENT') {
+        <p class="muted">Aucun paiement.</p>
+      }
+    </section>
+  </div>
+
+  <!-- ===== Ticket, seat and check-in ===== -->
+  @if (d.billet; as billet) {
+    <section class="card ticket">
+      <div class="ticket-header">
+        <div>
+          <p class="muted">Billet électronique</p>
+          <h2>{{ billet.numeroBillet }}</h2>
+        </div>
+        <span class="badge" [class]="billet.statut === 'EMIS' ? 'badge-success' : 'badge-neutral'">
+          {{ billetLabels[billet.statut] }}
+        </span>
+      </div>
+
+      <dl class="info-list">
+        <dt>Émis le</dt>
+        <dd>{{ billet.dateEmission | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        <dt>Siège</dt>
+        <dd>
+          @if (billet.siegeNumero) {
+            {{ billet.siegeNumero }}
+          } @else {
+            Non choisi (attribué automatiquement à l'enregistrement)
+          }
+        </dd>
+        <dt>Enregistrement</dt>
+        <dd>
+          @if (billet.enregistrementId) {
+            Fait le {{ billet.dateEnregistrement | date: 'dd/MM HH:mm' }} ({{ canalLabels[billet.canalEnregistrement!] }})
+          } @else {
+            Pas encore enregistré
+          }
+        </dd>
+      </dl>
+
+      @if (billet.statut === 'EMIS' && !billet.enregistrementId) {
+        <div class="ticket-actions">
+          <button type="button" class="btn btn-secondary" (click)="showSeatMap.set(!showSeatMap())">
+            {{ showSeatMap() ? 'Masquer le plan' : (billet.siegeNumero ? 'Changer de siège' : 'Choisir un siège') }}
+          </button>
+
+          <div class="inline-form">
+            <select [(ngModel)]="canal" aria-label="Canal d'enregistrement">
+              @for (c of canaux; track c) {
+                <option [ngValue]="c">{{ canalLabels[c] }}</option>
+              }
+            </select>
+            <button type="button" class="btn btn-primary" [disabled]="busy()" (click)="enregistrer(billet.id)">
+              Enregistrer le passager
+            </button>
+          </div>
+        </div>
+        <p class="muted hint">L'enregistrement est ouvert de 48 h à 45 min avant le départ.</p>
+
+        @if (showSeatMap()) {
+          <app-seat-map
+            [volId]="d.reservation.volId"
+            [classe]="d.reservation.classe"
+            [siegeActuelId]="billet.siegeId"
+            (siegeChoisi)="choisirSiege(billet.id, $event)"
+          />
+        }
+      }
+    </section>
+
+    <!-- ===== Bags (after check-in) ===== -->
+    @if (billet.enregistrementId; as enregistrementId) {
+      <h2 class="section-title">Bagages</h2>
+      <section class="card">
+        @if (billet.statut === 'EMIS') {
+          <div class="inline-form">
+            <select [(ngModel)]="typeBagage" aria-label="Type de bagage">
+              @for (t of typesBagage; track t) {
+                <option [ngValue]="t">{{ typeBagageLabels[t] }}</option>
+              }
+            </select>
+            <input type="number" min="0.1" max="32" step="0.1" [(ngModel)]="poidsKg" placeholder="Poids (kg)" aria-label="Poids en kg" />
+            <button type="button" class="btn btn-primary" [disabled]="busy()" (click)="ajouterBagage(enregistrementId)">
+              + Ajouter le bagage
+            </button>
+          </div>
+        }
+
+        @if (d.bagages.length === 0) {
+          <p class="empty-state">Aucun bagage enregistré.</p>
+        } @else {
+          <table class="table">
+            <thead>
+              <tr><th>Étiquette</th><th>Type</th><th>Poids</th><th>Statut</th><th class="actions"></th></tr>
+            </thead>
+            <tbody>
+              @for (b of d.bagages; track b.id) {
+                <tr>
+                  <td><strong>{{ b.numeroEtiquette }}</strong></td>
+                  <td>{{ b.type === 'SOUTE' ? 'Soute' : 'Cabine' }}</td>
+                  <td>{{ b.poidsKg }} kg</td>
+                  <td><span class="badge" [class]="statutBagageBadges[b.statut]">{{ statutBagageLabels[b.statut] }}</span></td>
+                  <td class="actions"><a class="btn btn-secondary btn-sm" [routerLink]="['/passengers/bagages', b.id]">Suivi</a></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </section>
+    }
+  }
+  <!-- ===== Assistance and review ===== -->
+  <div class="detail-grid" style="margin-top: 16px">
+    <section class="card">
+      <h2 class="card-title">Assistance</h2>
+      @for (a of d.assistances; track a.id) {
+        <p>
+          {{ assistanceLabels[a.typeAssistance] }}
+          <span class="badge" [class]="statutAssistanceBadges[a.statut]">{{ statutAssistanceLabels[a.statut] }}</span>
+          @if (a.description) {
+            <br /><small class="muted">{{ a.description }}</small>
+          }
+        </p>
+      } @empty {
+        <p class="muted">Aucune demande.</p>
+      }
+      @if (d.reservation.statut !== 'ANNULEE' && d.billet?.statut !== 'UTILISE') {
+        <div class="inline-form">
+          <select [(ngModel)]="typeAssistance" aria-label="Type d'assistance">
+            @for (t of typesAssistance; track t) {
+              <option [ngValue]="t">{{ assistanceLabels[t] }}</option>
+            }
+          </select>
+          <input [(ngModel)]="descriptionAssistance" placeholder="Précisions" maxlength="500" aria-label="Précisions" />
+          <button type="button" class="btn btn-secondary" [disabled]="busy()" (click)="demanderAssistance()">Ajouter</button>
+        </div>
+      }
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Avis du passager</h2>
+      @if (d.avis; as avis) {
+        <p class="stars">{{ avis.note | stars }}</p>
+        <p>{{ avis.commentaire ?? 'Pas de commentaire.' }}</p>
+      } @else if (d.billet?.statut === 'UTILISE') {
+        <div class="inline-form">
+          <select [(ngModel)]="note" aria-label="Note">
+            @for (n of [5, 4, 3, 2, 1]; track n) {
+              <option [ngValue]="n">{{ n }} ★</option>
+            }
+          </select>
+          <input [(ngModel)]="commentaireAvis" placeholder="Commentaire" maxlength="1000" aria-label="Commentaire" />
+          <button type="button" class="btn btn-secondary" [disabled]="busy()" (click)="donnerAvis()">Enregistrer</button>
+        </div>
+      } @else {
+        <p class="muted">Possible après l'embarquement.</p>
+      }
+    </section>
+  </div>
+} @else {
+  <p class="empty-state">Chargement de la réservation…</p>
+}

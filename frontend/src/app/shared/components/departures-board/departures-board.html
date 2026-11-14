@@ -1,0 +1,31 @@
+<table class="board">
+  <caption class="sr-only">Départs</caption>
+  <thead>
+    <tr>
+      <th scope="col">Heure</th>
+      <th scope="col">Destination</th>
+      <th scope="col" class="col-flight">Vol</th>
+      <th scope="col" class="col-arrival">Arrivée</th>
+      <th scope="col">Statut</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (vol of vols(); track vol.id) {
+      <tr>
+        <td class="time">
+          {{ vol.dateHeureDepart | date: 'HH:mm' }}
+          @if (showDate()) {
+            <small>{{ vol.dateHeureDepart | date: 'EEE d MMM' }}</small>
+          }
+        </td>
+        <td class="destination">{{ vol.aeroportArrivee }}</td>
+        <td class="col-flight">
+          <span class="flight">{{ vol.numeroVol }}</span>
+          <small>{{ vol.compagnieNom }}</small>
+        </td>
+        <td class="col-arrival">{{ vol.dateHeureArrivee | date: 'HH:mm' }}</td>
+        <td><span class="status" [class]="'status ' + tone(vol.statut)">{{ statutLabels[vol.statut] }}</span></td>
+      </tr>
+    }
+  </tbody>
+</table>

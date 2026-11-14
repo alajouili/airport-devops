@@ -1,0 +1,307 @@
+/* ---------- Access form ---------- */
+.access {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-8) 0;
+}
+
+.access-card {
+  display: grid;
+  gap: var(--space-4);
+  width: min(440px, 100%);
+  padding: var(--space-8) var(--space-6);
+}
+
+.access-card h1 {
+  font-size: var(--text-xl);
+  color: var(--navy-900);
+}
+
+.access-card > p {
+  margin: -8px 0 0;
+}
+
+.access-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--sky-50);
+  color: var(--navy-700);
+}
+
+.reference-input {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.submit {
+  width: 100%;
+  min-height: 40px;
+}
+
+/* ---------- Boarding pass ---------- */
+.pass {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  margin-bottom: var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.pass-main {
+  padding: var(--space-5) var(--space-6);
+  border-left: 5px solid var(--sky-500);
+}
+
+.pass-airline {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}
+
+.pass-route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.pass-city {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy-900);
+  line-height: 1.2;
+}
+
+.pass-time {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--navy-700);
+  font-variant-numeric: tabular-nums;
+}
+
+.pass-plane {
+  color: var(--sky-500);
+}
+
+.pass-date {
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+
+/* Journey steps: a short horizontal track */
+.journey {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
+  padding: var(--space-4) 0 0;
+  list-style: none;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.journey li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  color: var(--ink-muted);
+}
+
+.journey li.done {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.journey-dot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+}
+
+.journey li.done .journey-dot {
+  border-color: var(--success);
+  background: var(--success);
+  color: #fff;
+}
+
+/* The stub on the right, separated by a perforation line */
+.pass-stub {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-content: start;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-5);
+  border-left: 2px dashed var(--line-strong);
+  background: var(--surface-muted);
+}
+
+.pass-stub dt {
+  font-size: var(--text-xs);
+  color: var(--ink-muted);
+}
+
+.pass-stub dd {
+  margin: 2px 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.pass-stub .seat {
+  font-size: var(--text-lg);
+  color: var(--navy-700);
+}
+
+.hint {
+  margin: 0 0 var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.detail-grid {
+  margin-top: var(--space-4);
+}
+
+/* ---------- Lists inside cards ---------- */
+.rows {
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.rows li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.rows li:last-child {
+  border-bottom: none;
+}
+
+.row-main {
+  display: flex;
+  flex: 1;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+/* Fields stacked directly in a card (not inside a .form-grid) */
+.card > .form-field + .form-field {
+  margin-top: var(--space-3);
+}
+
+/* ---------- Review ---------- */
+.review {
+  margin-bottom: var(--space-4);
+}
+
+.stars {
+  margin: 0 0 var(--space-2);
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: #d99a00;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: var(--space-3);
+}
+
+.star {
+  padding: 0 2px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  font-size: 30px;
+  line-height: 1;
+  color: var(--line-strong);
+  cursor: pointer;
+}
+
+.star.on {
+  color: #d99a00;
+}
+
+.rating-value {
+  margin-left: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+/* ---------- Complaints ---------- */
+.complaint {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.complaint-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.complaint-meta {
+  margin: 2px 0 0;
+  font-size: var(--text-sm);
+}
+
+.answer {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--success-soft);
+}
+
+.answer p {
+  margin: 4px 0 0;
+}
+
+.form-title {
+  margin: var(--space-5) 0 var(--space-3);
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.description {
+  margin-top: var(--space-4);
+}
+
+textarea {
+  width: 100%;
+}
+
+@media (max-width: 860px) {
+  .pass {
+    grid-template-columns: 1fr;
+  }
+
+  .pass-stub {
+    border-left: none;
+    border-top: 2px dashed var(--line-strong);
+  }
+}
+
+@media (max-width: 480px) {
+  .pass-main {
+    padding: var(--space-4);
+  }
+
+  .pass-city {
+    font-size: 18px;
+  }
+}

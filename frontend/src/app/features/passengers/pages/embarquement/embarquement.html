@@ -1,0 +1,117 @@
+<app-page-header title="Embarquement" subtitle="Contrôle de sécurité et embarquement des passagers enregistrés" />
+
+<section class="card toolbar-card">
+  <div class="form-field">
+    <label for="vol">Vol</label>
+    <select id="vol" [(ngModel)]="volId" (ngModelChange)="chargerVol()">
+      <option [ngValue]="null">Choisir un vol</option>
+      @for (v of vols(); track v.id) {
+        <option [ngValue]="v.id">{{ v.numeroVol }} — {{ v.aeroportArrivee }} ({{ v.dateHeureDepart | date: 'dd/MM HH:mm' }})</option>
+      }
+    </select>
+  </div>
+  <div class="form-field">
+    <label for="porte">Porte</label>
+    <input id="porte" [(ngModel)]="porte" placeholder="Ex. B12" maxlength="10" style="text-transform: uppercase" />
+  </div>
+  <div class="form-field">
+    <label for="point">Point de contrôle sécurité</label>
+    <select id="point" [(ngModel)]="pointControleId">
+      @for (p of points(); track p.id) {
+        <option [ngValue]="p.id">{{ p.code }} — {{ p.nom }}</option>
+      }
+    </select>
+  </div>
+</section>
+
+@if (volId) {
+  <div class="counters">
+    <span><strong>{{ compteurs().total }}</strong> enregistrés</span>
+    <span><strong>{{ compteurs().prets }}</strong> prêts à embarquer</span>
+    <span><strong>{{ compteurs().embarques }}</strong> embarqués</span>
+  </div>
+
+  <div class="gate-layout">
+    <section class="card">
+      @if (loading()) {
+        <p class="empty-state">Chargement…</p>
+      } @else if (passagers().length === 0) {
+        <p class="empty-state">Aucun passager enregistré sur ce vol.</p>
+      } @else {
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr><th>Passager</th><th>Siège</th><th>Sécurité</th><th>Porte</th></tr>
+            </thead>
+            <tbody>
+              @for (p of passagers(); track p.billetId) {
+                <tr class="clickable" [class.selected]="p.billetId === selectionId()" (click)="selectionner(p)">
+                  <td>
+                    <strong>{{ p.passagerNom }}</strong><br />
+                    <small class="muted">{{ p.reservationReference }} · {{ classeLabels[p.classe] }}</small>
+                  </td>
+                  <td>{{ p.siegeNumero ?? '—' }}</td>
+                  <td>
+                    @if (p.dernierControle; as c) {
+                      <span class="badge" [class]="resultatBadges[c.resultat]">{{ resultatLabels[c.resultat] }}</span>
+                    } @else {
+                      <span class="badge badge-neutral">Non contrôlé</span>
+                    }
+                  </td>
+                  <td>
+                    @if (p.dernierEvenement; as e) {
+                      <span class="badge" [class]="evenementBadges[e.typeEvenement]">{{ evenementLabels[e.typeEvenement] }}</span>
+                    } @else {
+                      <span class="muted">—</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+    <aside class="card side">
+      @if (selection(); as p) {
+        <h2 class="card-title">{{ p.passagerNom }}</h2>
+        <p class="muted">Billet {{ p.numeroBillet }} · siège {{ p.siegeNumero ?? '—' }} ·
+          <a [routerLink]="['/passengers/reservations', p.reservationId]">réservation</a></p>
+
+        @if (p.statutBillet === 'UTILISE') {
+          <div class="summary">✓ Passager embarqué.</div>
+        } @else {
+          <div class="form-field">
+            <label for="commentaire">Commentaire / motif</label>
+            <input id="commentaire" [(ngModel)]="commentaire" maxlength="255" />
+          </div>
+
+          <h3 class="step-title">1. Contrôle de sécurité</h3>
+          <div class="inline-actions">
+            <select [(ngModel)]="resultat" aria-label="Résultat du contrôle">
+              @for (r of resultats; track r) {
+                <option [ngValue]="r">{{ resultatLabels[r] }}</option>
+              }
+            </select>
+            <button type="button" class="btn btn-secondary" [disabled]="busy()" (click)="controler(p)">Enregistrer</button>
+          </div>
+
+          <h3 class="step-title">2. Porte d'embarquement</h3>
+          <div class="inline-actions">
+            <button type="button" class="btn btn-secondary" [disabled]="busy()" (click)="evenement(p, 'APPEL')">Appeler</button>
+            <button type="button" class="btn btn-primary" [disabled]="busy() || !p.peutEmbarquer" (click)="evenement(p, 'EMBARQUE')"
+              [title]="p.peutEmbarquer ? '' : 'Contrôle de sécurité conforme requis'">Embarquer</button>
+            <button type="button" class="btn btn-secondary" [disabled]="busy()" (click)="evenement(p, 'NON_PRESENTE')">Non présenté</button>
+            <button type="button" class="btn btn-danger" [disabled]="busy()" (click)="evenement(p, 'REFUSE')">Refuser</button>
+          </div>
+          @if (!p.peutEmbarquer) {
+            <p class="muted hint">L'embarquement exige un dernier contrôle de sécurité « Conforme ».</p>
+          }
+        }
+      } @else {
+        <p class="empty-state">Sélectionnez un passager dans la liste.</p>
+      }
+    </aside>
+  </div>
+}

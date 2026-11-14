@@ -1,0 +1,93 @@
+@if (detail(); as d) {
+  <app-page-header [title]="'Bagage ' + d.bagage.numeroEtiquette" [subtitle]="d.bagage.passagerNom + ' — vol ' + d.bagage.numeroVol">
+    <a routerLink="/passengers/bagages" class="btn btn-secondary">← Bagages</a>
+    <a [routerLink]="['/passengers/reservations', d.bagage.reservationId]" class="btn btn-secondary">Réservation {{ d.bagage.reservationReference }}</a>
+    <a
+      class="btn btn-secondary"
+      routerLink="/passengers/reclamations/nouvelle"
+      [queryParams]="{ passagerId: d.bagage.passagerId, reservationId: d.bagage.reservationId, bagageId: d.bagage.id, categorie: 'BAGAGE' }"
+    >Créer une réclamation</a>
+  </app-page-header>
+
+  <div class="detail-grid">
+    <section class="card">
+      <h2 class="card-title">Informations</h2>
+      <dl class="info-list">
+        <dt>Statut</dt>
+        <dd><span class="badge" [class]="statutBadges[d.bagage.statut]">{{ statutLabels[d.bagage.statut] }}</span></dd>
+        <dt>Type</dt>
+        <dd>{{ d.bagage.type === 'SOUTE' ? 'Soute' : 'Cabine' }}</dd>
+        <dt>Poids</dt>
+        <dd>{{ d.bagage.poidsKg }} kg</dd>
+        <dt>Destination</dt>
+        <dd>{{ d.bagage.aeroportArrivee }}</dd>
+        <dt>Enregistré le</dt>
+        <dd>{{ d.bagage.dateCreation | date: 'dd/MM/yyyy HH:mm' }}</dd>
+      </dl>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Enregistrer un événement</h2>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+        <div class="form-field">
+          <label for="type">Événement</label>
+          <select id="type" formControlName="typeEvenement">
+            @for (t of typesEvenement; track t) {
+              <option [ngValue]="t">{{ evenementLabels[t] }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="lieu">Lieu *</label>
+          <input id="lieu" formControlName="lieu" placeholder="Ex. Tri bagages T1, Tapis 3" />
+          @if (form.controls.lieu.invalid && form.controls.lieu.touched) {
+            <span class="field-error">Le lieu est obligatoire.</span>
+          }
+        </div>
+        <div class="form-field">
+          <label for="commentaire">Commentaire</label>
+          <input id="commentaire" formControlName="commentaire" />
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">Enregistrer</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <div class="detail-grid">
+    <section class="card">
+      <h2 class="card-title">Historique des statuts</h2>
+      <ol class="timeline">
+        @for (h of d.historique; track h.id) {
+          <li>
+            <span class="badge" [class]="statutBadges[h.nouveauStatut]">{{ statutLabels[h.nouveauStatut] }}</span>
+            <span class="muted">{{ h.dateChangement | date: 'dd/MM HH:mm:ss' }}</span>
+            @if (h.commentaire) {
+              <p>{{ h.commentaire }}</p>
+            }
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Événements de traitement</h2>
+      @if (d.evenements.length === 0) {
+        <p class="empty-state">Aucun scan pour l'instant.</p>
+      } @else {
+        <ol class="timeline">
+          @for (e of d.evenements; track e.id) {
+            <li>
+              <strong>{{ evenementLabels[e.typeEvenement] }}</strong>
+              <span class="muted">{{ e.dateEvenement | date: 'dd/MM HH:mm:ss' }}</span>
+              <p>{{ e.lieu }}{{ e.commentaire ? ' — ' + e.commentaire : '' }}</p>
+            </li>
+          }
+        </ol>
+      }
+    </section>
+  </div>
+} @else {
+  <p class="empty-state">Chargement du bagage…</p>
+}

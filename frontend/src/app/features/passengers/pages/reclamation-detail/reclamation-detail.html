@@ -1,0 +1,66 @@
+@if (reclamation(); as r) {
+  <app-page-header [title]="'Réclamation ' + r.reference" [subtitle]="r.sujet">
+    <a routerLink="/passengers/reclamations" class="btn btn-secondary">← Réclamations</a>
+  </app-page-header>
+
+  <div class="detail-grid">
+    <section class="card">
+      <h2 class="card-title">Informations</h2>
+      <dl class="info-list">
+        <dt>Statut</dt>
+        <dd><span class="badge" [class]="statutBadges[r.statut]">{{ statutLabels[r.statut] }}</span></dd>
+        <dt>Passager</dt>
+        <dd>{{ r.passagerNom }}</dd>
+        <dt>Catégorie</dt>
+        <dd>{{ categorieLabels[r.categorie] }}</dd>
+        @if (r.reservationId) {
+          <dt>Réservation</dt>
+          <dd><a [routerLink]="['/passengers/reservations', r.reservationId]">{{ r.reservationReference }}</a></dd>
+        }
+        @if (r.bagageId) {
+          <dt>Bagage</dt>
+          <dd><a [routerLink]="['/passengers/bagages', r.bagageId]">{{ r.bagageEtiquette }}</a></dd>
+        }
+        <dt>Créée le</dt>
+        <dd>{{ r.dateCreation | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        @if (r.dateCloture) {
+          <dt>Clôturée le</dt>
+          <dd>{{ r.dateCloture | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        }
+      </dl>
+      <h3 class="card-title" style="margin-top: 16px">Description du passager</h3>
+      <p style="white-space: pre-line">{{ r.description }}</p>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Traitement</h2>
+      @if (transitions[r.statut].length === 0) {
+        <p class="muted">Réclamation clôturée.</p>
+        @if (r.reponse) {
+          <div class="summary"><strong>Réponse envoyée :</strong> {{ r.reponse }}</div>
+        }
+      } @else {
+        <div class="form-field">
+          <label for="reponse">Réponse au passager (obligatoire pour clôturer)</label>
+          <textarea id="reponse" [(ngModel)]="reponse" rows="6" maxlength="2000"></textarea>
+        </div>
+        <div class="form-actions">
+          @for (s of transitions[r.statut]; track s) {
+            <button
+              type="button"
+              class="btn"
+              [class.btn-primary]="s !== 'REJETEE'"
+              [class.btn-danger]="s === 'REJETEE'"
+              [disabled]="busy()"
+              (click)="changer(s)"
+            >
+              {{ s === 'EN_COURS' ? 'Prendre en charge' : s === 'RESOLUE' ? 'Marquer résolue' : 'Rejeter' }}
+            </button>
+          }
+        </div>
+      }
+    </section>
+  </div>
+} @else {
+  <p class="empty-state">Chargement…</p>
+}

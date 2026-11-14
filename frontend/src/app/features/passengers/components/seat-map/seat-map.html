@@ -1,0 +1,34 @@
+@if (loading()) {
+  <p class="empty-state">Chargement du plan…</p>
+} @else {
+  <div class="legend">
+    <span><i class="seat free"></i> Libre</span>
+    <span><i class="seat taken"></i> Occupé</span>
+    <span><i class="seat current"></i> Siège actuel</span>
+    <span><i class="seat other"></i> Autre classe</span>
+  </div>
+
+  <div class="cabin">
+    @for (rangee of rangees(); track rangee.numero) {
+      <div class="row">
+        <span class="row-number">{{ rangee.numero }}</span>
+        @for (siege of rangee.sieges; track siege.id) {
+          <button
+            type="button"
+            class="seat"
+            [class.free]="selectable(siege) && siege.id !== siegeActuelId()"
+            [class.taken]="siege.occupe && siege.id !== siegeActuelId() && siege.classe === classe()"
+            [class.current]="siege.id === siegeActuelId()"
+            [class.other]="siege.classe !== classe()"
+            [class.aisle]="lettre(siege) === 'C'"
+            [disabled]="!selectable(siege)"
+            [title]="siege.numero"
+            (click)="choose(siege)"
+          >
+            {{ lettre(siege) }}
+          </button>
+        }
+      </div>
+    }
+  </div>
+}

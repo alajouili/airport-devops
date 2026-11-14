@@ -1,0 +1,116 @@
+<a class="skip-link" href="#contenu">Aller au contenu</a>
+
+<div class="shell" [class.menu-open]="menuOpen()">
+  <aside class="sidebar" id="menu-principal" aria-label="Menu principal">
+    <a routerLink="/" class="brand">
+      <span class="brand-logo"><app-icon name="plane" [size]="18" /></span>
+      <span class="brand-text">
+        <strong>Airport</strong>
+        <small>Gestion aéroportuaire</small>
+      </span>
+    </a>
+
+    <nav>
+      @for (section of navigation; track section.title) {
+        <div class="nav-section">
+          @if (section.title) {
+            <p class="nav-section-title">{{ section.title }}</p>
+          }
+          @for (item of section.items; track item.route) {
+            <a
+              class="nav-link"
+              [routerLink]="item.route"
+              routerLinkActive="active"
+              ariaCurrentWhenActive="page"
+              [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+            >
+              <app-icon [name]="item.icon" [size]="18" />
+              <span>{{ item.label }}</span>
+            </a>
+          }
+        </div>
+      }
+
+      <div class="nav-section planned">
+        <button
+          type="button"
+          class="planned-toggle"
+          [attr.aria-expanded]="plannedOpen()"
+          aria-controls="modules-a-venir"
+          (click)="plannedOpen.set(!plannedOpen())"
+        >
+          <span>Modules à venir</span>
+          <app-icon name="chevron-down" [size]="16" [class.rotated]="plannedOpen()" />
+        </button>
+        @if (plannedOpen()) {
+          <ul id="modules-a-venir" class="planned-list">
+            @for (module of plannedModules; track module.label) {
+              <li class="nav-link disabled" title="Prévu dans une prochaine partie du projet">
+                <app-icon [name]="module.icon" [size]="18" />
+                <span>{{ module.label }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Dark background behind the menu on small screens; a click closes the menu. -->
+  <div class="backdrop" (click)="closeMenu()" aria-hidden="true"></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button
+        type="button"
+        class="btn btn-ghost btn-icon menu-button"
+        aria-label="Ouvrir le menu"
+        aria-controls="menu-principal"
+        [attr.aria-expanded]="menuOpen()"
+        (click)="toggleMenu()"
+      >
+        <app-icon [name]="menuOpen() ? 'x' : 'menu'" />
+      </button>
+
+      <nav class="breadcrumb" aria-label="Fil d'Ariane">
+        <ol>
+          @for (crumb of breadcrumb(); track $index; let last = $last) {
+            <li>
+              @if (crumb.link) {
+                <a [routerLink]="crumb.link">{{ crumb.label }}</a>
+              } @else {
+                <span [attr.aria-current]="last ? 'page' : null" [class.current]="last">{{ crumb.label }}</span>
+              }
+              @if (!last) {
+                <app-icon name="chevron-right" [size]="14" class="crumb-separator" />
+              }
+            </li>
+          }
+        </ol>
+      </nav>
+
+      <button
+        type="button"
+        class="api-status"
+        [class.up]="apiUp() === true"
+        [class.down]="apiUp() === false"
+        (click)="checkApi()"
+        title="Cliquer pour vérifier à nouveau"
+      >
+        <span class="api-dot" aria-hidden="true"></span>
+        @switch (apiUp()) {
+          @case (true) { API et base connectées }
+          @case (false) { API injoignable }
+          @default { Vérification… }
+        }
+      </button>
+    </header>
+
+    <main class="content" id="contenu" tabindex="-1">
+      <router-outlet />
+    </main>
+  </div>
+</div>
+
+<app-toast-container />
+<app-confirm-dialog />

@@ -1,0 +1,101 @@
+@if (detail(); as d) {
+  <app-page-header [title]="'Objet ' + d.objet.reference" [subtitle]="d.objet.description">
+    <a routerLink="/passengers/objets-trouves" class="btn btn-secondary">← Objets trouvés</a>
+    @if (d.objet.statut === 'EN_STOCK') {
+      <button
+        type="button"
+        class="btn btn-danger"
+        [disabled]="busy() || !d.objet.eliminable"
+        [title]="d.objet.eliminable ? '' : 'Possible après 90 jours de conservation'"
+        (click)="eliminer()"
+      >Éliminer</button>
+    }
+  </app-page-header>
+
+  <div class="detail-grid">
+    <section class="card">
+      <h2 class="card-title">Objet</h2>
+      <dl class="info-list">
+        <dt>Statut</dt>
+        <dd><span class="badge" [class]="statutBadges[d.objet.statut]">{{ statutLabels[d.objet.statut] }}</span></dd>
+        <dt>Catégorie</dt>
+        <dd>{{ categorieLabels[d.objet.categorie] }}</dd>
+        <dt>Trouvé</dt>
+        <dd>{{ d.objet.dateTrouve | date: 'dd/MM/yyyy HH:mm' }} — {{ d.objet.lieuTrouve }}</dd>
+        <dt>Enregistré le</dt>
+        <dd>{{ d.objet.dateEnregistrement | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        @if (d.objet.dateSortie) {
+          <dt>Sorti le</dt>
+          <dd>{{ d.objet.dateSortie | date: 'dd/MM/yyyy HH:mm' }}</dd>
+        }
+      </dl>
+      @if (d.objet.statut === 'EN_STOCK' && !d.objet.eliminable) {
+        <p class="muted" style="margin-top: 12px">L'élimination est possible après 90 jours de conservation.</p>
+      }
+    </section>
+
+    @if (d.objet.statut === 'EN_STOCK') {
+      <form class="card" [formGroup]="form" (ngSubmit)="ajouterDemande()" novalidate>
+        <h2 class="card-title">Nouvelle demande de restitution</h2>
+        <div class="form-field">
+          <label for="nom">Nom du demandeur *</label>
+          <input id="nom" formControlName="nomDemandeur" />
+        </div>
+        <div class="form-field" style="margin-top: 10px">
+          <label for="contact">Email ou téléphone *</label>
+          <input id="contact" formControlName="contact" />
+        </div>
+        <div class="form-field" style="margin-top: 10px">
+          <label for="preuve">Description de l'objet par le demandeur *</label>
+          <textarea id="preuve" formControlName="descriptionPreuve" rows="3" maxlength="500"
+            placeholder="Détails que seul le propriétaire connaît (contenu, marque, couleur…)"></textarea>
+        </div>
+        @if (form.invalid && form.touched) {
+          <span class="field-error">Tous les champs sont obligatoires.</span>
+        }
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="busy()">Enregistrer la demande</button>
+        </div>
+      </form>
+    }
+  </div>
+
+  <h2 class="section-title">Demandes de restitution</h2>
+  <section class="card">
+    @if (d.demandes.length === 0) {
+      <p class="empty-state">Aucune demande.</p>
+    } @else {
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr><th>Demandeur</th><th>Contact</th><th>Description donnée</th><th>Statut</th><th class="actions">Décision</th></tr>
+          </thead>
+          <tbody>
+            @for (dem of d.demandes; track dem.id) {
+              <tr>
+                <td>{{ dem.nomDemandeur }}<br /><small class="muted">{{ dem.dateDemande | date: 'dd/MM HH:mm' }}</small></td>
+                <td>{{ dem.contact }}</td>
+                <td>{{ dem.descriptionPreuve }}</td>
+                <td>
+                  <span class="badge" [class]="demandeBadges[dem.statut]">{{ demandeLabels[dem.statut] }}</span>
+                  @if (dem.commentaireDecision) {
+                    <br /><small class="muted">{{ dem.commentaireDecision }}</small>
+                  }
+                </td>
+                <td class="actions">
+                  @if (dem.statut === 'EN_ATTENTE' && d.objet.statut === 'EN_STOCK') {
+                    <input [(ngModel)]="motifs[dem.id]" placeholder="Motif si refus" aria-label="Motif du refus" class="motif" />
+                    <button type="button" class="btn btn-primary btn-sm" [disabled]="busy()" (click)="decider(dem.id, true)">Restituer</button>
+                    <button type="button" class="btn btn-danger btn-sm" [disabled]="busy()" (click)="decider(dem.id, false)">Refuser</button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+}  @else {
+  <p class="empty-state">Chargement…</p>
+}

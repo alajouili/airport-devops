@@ -1,0 +1,98 @@
+<app-page-header title="Objets trouvés" subtitle="Registre des objets trouvés dans l'aéroport et demandes de restitution">
+  <button type="button" class="btn btn-primary" (click)="showForm.set(!showForm())">
+    {{ showForm() ? 'Fermer' : '+ Déclarer un objet' }}
+  </button>
+</app-page-header>
+
+@if (showForm()) {
+  <form class="card" [formGroup]="form" (ngSubmit)="declarer()" novalidate style="margin-bottom: 16px">
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="description">Description *</label>
+        <input id="description" formControlName="description" placeholder="Ex. Sac à dos gris de marque…" />
+        @if (form.controls.description.invalid && form.controls.description.touched) {
+          <span class="field-error">La description est obligatoire.</span>
+        }
+      </div>
+      <div class="form-field">
+        <label for="categorie">Catégorie</label>
+        <select id="categorie" formControlName="categorie">
+          @for (c of categories; track c) {
+            <option [ngValue]="c">{{ categorieLabels[c] }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="lieu">Lieu *</label>
+        <input id="lieu" formControlName="lieuTrouve" placeholder="Ex. Porte B4" />
+        @if (form.controls.lieuTrouve.invalid && form.controls.lieuTrouve.touched) {
+          <span class="field-error">Le lieu est obligatoire.</span>
+        }
+      </div>
+      <div class="form-field">
+        <label for="date">Trouvé le *</label>
+        <input id="date" type="datetime-local" formControlName="dateTrouve" />
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">Enregistrer</button>
+    </div>
+  </form>
+}
+
+<section class="card">
+  <form class="toolbar" (ngSubmit)="load()">
+    <div class="form-field">
+      <input type="search" name="recherche" [(ngModel)]="recherche" placeholder="Rechercher dans la description" aria-label="Rechercher" />
+    </div>
+    <div class="form-field">
+      <select name="statut" [(ngModel)]="statut" (ngModelChange)="load()" aria-label="Statut">
+        <option [ngValue]="null">Tous les statuts</option>
+        @for (s of statuts; track s) {
+          <option [ngValue]="s">{{ statutLabels[s] }}</option>
+        }
+      </select>
+    </div>
+    <div class="form-field">
+      <select name="categorie" [(ngModel)]="categorie" (ngModelChange)="load()" aria-label="Catégorie">
+        <option [ngValue]="null">Toutes les catégories</option>
+        @for (c of categories; track c) {
+          <option [ngValue]="c">{{ categorieLabels[c] }}</option>
+        }
+      </select>
+    </div>
+    <button type="submit" class="btn btn-secondary">Rechercher</button>
+  </form>
+
+  @if (loading()) {
+    <p class="empty-state">Chargement…</p>
+  } @else if (objets().length === 0) {
+    <p class="empty-state">Aucun objet.</p>
+  } @else {
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr><th>Référence</th><th>Description</th><th>Catégorie</th><th>Lieu</th><th>Trouvé le</th><th>Statut</th><th class="actions"></th></tr>
+        </thead>
+        <tbody>
+          @for (o of objets(); track o.id) {
+            <tr>
+              <td><strong>{{ o.reference }}</strong></td>
+              <td>{{ o.description }}</td>
+              <td>{{ categorieLabels[o.categorie] }}</td>
+              <td>{{ o.lieuTrouve }}</td>
+              <td>{{ o.dateTrouve | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="badge" [class]="statutBadges[o.statut]">{{ statutLabels[o.statut] }}</span>
+                @if (o.eliminable) {
+                  <span class="badge badge-warning">+90 j</span>
+                }
+              </td>
+              <td class="actions"><a class="btn btn-secondary btn-sm" [routerLink]="[o.id]">Ouvrir</a></td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

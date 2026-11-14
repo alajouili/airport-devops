@@ -1,0 +1,65 @@
+<app-page-header title="Points de contrôle sécurité" subtitle="Un point déjà utilisé ne peut pas être supprimé : désactivez-le" />
+
+<div class="detail-grid">
+  <section class="card">
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr><th>Code</th><th>Nom</th><th>Terminal</th><th>Type</th><th>État</th><th class="actions"></th></tr>
+        </thead>
+        <tbody>
+          @for (p of points(); track p.id) {
+            <tr>
+              <td><strong>{{ p.code }}</strong></td>
+              <td>{{ p.nom }}</td>
+              <td>{{ p.terminal }}</td>
+              <td>{{ typeLabels[p.type] }}</td>
+              <td><span class="badge" [class]="p.actif ? 'badge-success' : 'badge-neutral'">{{ p.actif ? 'Actif' : 'Inactif' }}</span></td>
+              <td class="actions">
+                <button type="button" class="btn btn-secondary btn-sm" (click)="modifier(p)">Modifier</button>
+                <button type="button" class="btn btn-secondary btn-sm" (click)="basculer(p)">{{ p.actif ? 'Désactiver' : 'Activer' }}</button>
+                <button type="button" class="btn btn-danger btn-sm" (click)="supprimer(p)">Supprimer</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <form class="card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <h2 class="card-title">{{ editionId() ? 'Modifier le point' : 'Nouveau point' }}</h2>
+    <div class="form-field">
+      <label for="code">Code *</label>
+      <input id="code" formControlName="code" placeholder="PIF-T1-B" style="text-transform: uppercase" />
+      @if (form.controls.code.invalid && form.controls.code.touched) {
+        <span class="field-error">3 à 10 lettres, chiffres ou tirets.</span>
+      }
+    </div>
+    <div class="form-field" style="margin-top: 10px">
+      <label for="nom">Nom *</label>
+      <input id="nom" formControlName="nom" />
+    </div>
+    <div class="form-field" style="margin-top: 10px">
+      <label for="terminal">Terminal *</label>
+      <input id="terminal" formControlName="terminal" placeholder="T1" />
+    </div>
+    <div class="form-field" style="margin-top: 10px">
+      <label for="type">Type</label>
+      <select id="type" formControlName="type">
+        @for (t of types; track t) {
+          <option [ngValue]="t">{{ typeLabels[t] }}</option>
+        }
+      </select>
+    </div>
+    <label style="display: flex; gap: 8px; margin-top: 12px">
+      <input type="checkbox" formControlName="actif" /> Actif
+    </label>
+    <div class="form-actions">
+      @if (editionId()) {
+        <button type="button" class="btn btn-secondary" (click)="annulerEdition()">Annuler</button>
+      }
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">Enregistrer</button>
+    </div>
+  </form>
+</div>

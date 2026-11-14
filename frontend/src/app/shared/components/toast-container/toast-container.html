@@ -1,0 +1,13 @@
+<!-- polite: success/info messages are read when the screen reader is idle;
+     errors use role="alert" so they are read immediately. -->
+<div class="toast-stack" aria-live="polite">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div class="toast" [class]="'toast-' + toast.type" [attr.role]="toast.type === 'error' ? 'alert' : 'status'">
+      <app-icon [name]="icons[toast.type]" [size]="18" class="toast-icon" />
+      <p>{{ toast.message }}</p>
+      <button type="button" class="close" (click)="toastService.dismiss(toast.id)" aria-label="Fermer le message">
+        <app-icon name="x" [size]="16" />
+      </button>
+    </div>
+  }
+</div>
