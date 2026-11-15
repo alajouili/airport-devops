@@ -1,5 +1,5 @@
 # Airport Management System
-
+![CI](https://github.com/alajouili/airport-devops/actions/workflows/ci.yml/badge.svg)
 A web application for managing an airport's passenger services: flight schedules, passengers and
 bookings, simulated payment, tickets, seats, check-in, baggage tracking, security checks, boarding,
 assistance requests, complaints, lost and found, and passenger reviews.
