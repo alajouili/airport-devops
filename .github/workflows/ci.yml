@@ -51,4 +51,57 @@ jobs:
         run: npm test -- --watch=false
 
       - name: Build de production
-        run: npm run build      
+        run: npm run build  
+
+      # ---------------- Job 3 : images Docker ----------------
+  build-scan-push:
+    name: Image ${{ matrix.service }}
+    needs: [backend-tests, frontend-tests]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [backend, frontend]
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/airport-${{ matrix.service }}
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v5
+
+      - name: Préparer Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Construire l'image
+        uses: docker/build-push-action@v7
+        with:
+          context: ./${{ matrix.service }}
+          load: true
+          tags: ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha,scope=${{ matrix.service }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.service }}
+
+      - name: Scanner l'image avec Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: ${{ env.IMAGE }}:${{ github.sha }}
+          severity: CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+          format: table
+
+      - name: Connexion à ghcr.io
+        if: github.event_name == 'push'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publier l'image
+        if: github.event_name == 'push'
+        run: |
+          docker tag $IMAGE:${{ github.sha }} $IMAGE:latest
+          docker push $IMAGE:${{ github.sha }}
+          docker push $IMAGE:latest
