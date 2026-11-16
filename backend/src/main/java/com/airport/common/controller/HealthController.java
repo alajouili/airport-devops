@@ -30,6 +30,7 @@ public class HealthController {
     public Map<String, Object> health() {
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("status", "UP");
+        result.put("version" , "v2-gitops");
         result.put("database", isDatabaseUp() ? "UP" : "DOWN");
         result.put("timestamp", LocalDateTime.now());
         return result;
