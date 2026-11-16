@@ -3,6 +3,11 @@ name : CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - 'charts/**'
+      - 'argocd/**'
+      - 'k8s/**'
+      - '**md'
   pull_request:
     branches: [main]
   
@@ -105,3 +110,30 @@ jobs:
           docker tag $IMAGE:${{ github.sha }} $IMAGE:latest
           docker push $IMAGE:${{ github.sha }}
           docker push $IMAGE:latest
+      
+  update-manifests:
+    name: Mettre à jour la version dans le chart Helm
+    needs: build-scan-push
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v5
+
+      - name: Écrire le nouveau tag dans values.yaml
+        env:
+          TAG: ${{ github.sha }}
+        run: |
+          yq -i '.backend.image.tag = strenv(TAG) | .frontend.image.tag = strenv(TAG)' charts/airport/values.yaml
+          git diff
+
+      - name: Commit et push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add charts/airport/values.yaml
+          git commit -m "Deploy ${GITHUB_SHA::7} [skip ci]"
+          git pull --rebase
+          git push
