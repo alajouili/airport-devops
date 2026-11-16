@@ -11,7 +11,7 @@ db:
       memory: 512Mi
 
 backend:
-  replicas: 2
+  replicas: 3
   image:
     repository: ghcr.io/alajouili/airport-backend
     tag: latest
