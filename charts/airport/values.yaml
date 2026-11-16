@@ -13,7 +13,7 @@ backend:
   replicas: 3
   image:
     repository: ghcr.io/alajouili/airport-backend
-    tag: be173dd3cf215c6bceb70e3113794367cb0af2d7
+    tag: 83a423efa48f4fcfbaae72fc5064f84c95902e5a
     pullPolicy: Always
   resources:
     requests:
@@ -25,7 +25,7 @@ frontend:
   replicas: 2
   image:
     repository: ghcr.io/alajouili/airport-frontend
-    tag: be173dd3cf215c6bceb70e3113794367cb0af2d7
+    tag: 83a423efa48f4fcfbaae72fc5064f84c95902e5a
     pullPolicy: Always
   resources:
     requests:
