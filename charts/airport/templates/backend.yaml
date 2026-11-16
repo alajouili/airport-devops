@@ -2,17 +2,15 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: backend-config
-  namespace: airport
 data:
-  SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/airport_db
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/{{ .Values.db.name }}"
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: backend
-  namespace: airport
 spec:
-  replicas: 2
+  replicas: {{ .Values.backend.replicas }}
   selector:
     matchLabels:
       app: backend
@@ -23,8 +21,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: ghcr.io/alajouili/airport-backend:latest
-          imagePullPolicy: Always
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
             - containerPort: 8080
           envFrom:
@@ -34,12 +32,12 @@ spec:
             - name: DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: db-credentials
+                  name: {{ .Values.db.existingSecret }}
                   key: DB_USERNAME
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: db-credentials
+                  name: {{ .Values.db.existingSecret }}
                   key: DB_PASSWORD
           startupProbe:
             httpGet:
@@ -57,17 +55,12 @@ spec:
               port: 8080
             periodSeconds: 20
           resources:
-            requests:
-              cpu: 250m
-              memory: 512Mi
-            limits:
-              memory: 1Gi
+            {{- toYaml .Values.backend.resources | nindent 12 }}
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: backend
-  namespace: airport
 spec:
   selector:
     app: backend
