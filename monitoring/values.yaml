@@ -1,0 +1,20 @@
+grafana:
+  service:
+    type: LoadBalancer
+
+prometheus:
+  prometheusSpec:
+    retention: 2d
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+
+# Composants inaccessibles dans un cluster kind : on les désactive
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
