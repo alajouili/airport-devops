@@ -2,3 +2,8 @@
 backend/target/
 # Secrets locaux
 .env
+
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfvars
