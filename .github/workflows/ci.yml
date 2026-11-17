@@ -9,6 +9,9 @@ on:
       - 'k8s/**'
       - '**md'
       - 'monitoring/**'
+      - 'infra/**'
+      - 'k6/**'
+      - '**.md'
   pull_request:
     branches: [main]
   
