@@ -8,6 +8,7 @@ on:
       - 'argocd/**'
       - 'k8s/**'
       - '**md'
+      - 'monitoring/**'
   pull_request:
     branches: [main]
   
