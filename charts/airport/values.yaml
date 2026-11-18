@@ -9,29 +9,35 @@ db:
       memory: 256Mi
     limits:
       memory: 512Mi
+
 backend:
   replicas: 3
   image:
     repository: ghcr.io/alajouili/airport-backend
-    tag: 55bfddf7c00ba9444c348edfc0f08fe3eb5ee0c8
-    pullPolicy: Always
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 250m
       memory: 512Mi
     limits:
       memory: 1Gi
+
 frontend:
   replicas: 2
   image:
     repository: ghcr.io/alajouili/airport-frontend
-    tag: 55bfddf7c00ba9444c348edfc0f08fe3eb5ee0c8
-    pullPolicy: Always
+    tag: latest
+    pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: 50m
       memory: 64Mi
     limits:
       memory: 128Mi
+
 gateway:
   className: eg
+
+monitoring:
+  enabled: true
